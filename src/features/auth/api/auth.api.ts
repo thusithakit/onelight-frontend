@@ -1,6 +1,5 @@
 
 import { api } from '../../../lib/axios'
-import type { AuthUser } from '../../../stores/auth.store'
 
 export interface LoginRequest {
   email: string
@@ -9,7 +8,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string
-  user: AuthUser
+  userId: string
 }
 
 export async function login(

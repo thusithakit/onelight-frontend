@@ -1,56 +1,70 @@
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import {
-  createBrowserRouter,
-  Navigate,
-} from 'react-router-dom'
-
-import ProtectedRoute from './ProtectedRoute'
-import LoginPage from '../features/auth/pages/LoginPage'
-import CirclesPage from '../features/circles/pages/CirclesPage'
-import InvitationsPage from '../features/invitations/pages/InvitationsPage'
-import ProfilePage from '../features/profile/pages/ProfilePage'
-import DevicesPage from '../features/devices/pages/DevicePage'
+import ProtectedRoute from "./ProtectedRoute";
+import LoginPage from "../features/auth/pages/LoginPage";
+import CirclesPage from "../features/circles/pages/CirclesPage";
+import InvitationsPage from "../features/invitations/pages/InvitationsPage";
+import ProfilePage from "../features/profile/pages/ProfilePage";
+import DevicesPage from "../features/devices/pages/DevicePage";
+import AppShell from "../components/layout/AppShell";
+import AddDevicePage from "../features/devices/pages/AddDevicePage";
+import CreateCirclePage from "../features/circles/pages/CreateCirclePage";
+import CircleDetailPage from "../features/circles/pages/CircleDetailPage";
+import DeviceDetailPage from "../features/devices/pages/DeviceDetailPage";
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
+    path: "/login",
     element: <LoginPage />,
   },
   {
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/',
-        element: <Navigate to="/devices" replace />,
+        element: <AppShell />,
+        children: [
+          {
+            path: "/",
+            element: <Navigate to="/devices" replace />,
+          },
+          {
+            path: "/devices",
+            element: <DevicesPage />,
+          },
+          {
+            path: "/devices/new",
+            element: <AddDevicePage />,
+          },
+          {
+            path: "/devices/:deviceId",
+            element: <DeviceDetailPage />,
+          },
+          {
+            path: "/circles",
+            element: <CirclesPage />,
+          },
+          {
+            path: "/circles/new",
+            element: <CreateCirclePage />,
+          },
+          {
+            path: "/circles/:circleId",
+            element: <CircleDetailPage />,
+          },
+          {
+            path: "/invitations",
+            element: <InvitationsPage />,
+          },
+          {
+            path: "/profile",
+            element: <ProfilePage />,
+          },
+        ],
       },
       {
-        path: '/devices',
-        element: <DevicesPage />,
-      },
-      {
-        path: '/devices/:deviceId',
-        element: <DevicesPage />,
-      },
-      {
-        path: '/circles',
-        element: <CirclesPage />,
-      },
-      {
-        path: '/circles/:circleId',
-        element: <CirclesPage />,
-      },
-      {
-        path: '/invitations',
-        element: <InvitationsPage />,
-      },
-      {
-        path: '/profile',
-        element: <ProfilePage />,
-      },
-      {
-        path: '*',
+        path: "*",
         element: <Navigate to="/devices" replace />,
       },
     ],
   },
-])
+]);

@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const session = await login({ email, password })
 
-      setSession(session.user, session.accessToken)
+      setSession(session.userId, session.accessToken)
       navigate('/devices', { replace: true })
     } catch {
       setError('Unable to sign in. Check your credentials and try again.')

@@ -1,32 +1,26 @@
 
 import { create } from 'zustand'
 
-export interface AuthUser {
-  id: string
-  email: string
-  name?: string
-}
-
 interface AuthState {
-  user: AuthUser | null
+  userId: string | null
   accessToken: string | null
   isAuthenticated: boolean
   isInitializing: boolean
 
-  setSession: (user: AuthUser, accessToken: string) => void
+  setSession: (userId: string, accessToken: string) => void
   clearSession: () => void
   finishInitialization: () => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  userId: null,
   accessToken: null,
   isAuthenticated: false,
   isInitializing: true,
 
-  setSession: (user, accessToken) =>
+  setSession: (userId, accessToken) =>
     set({
-      user,
+      userId,
       accessToken,
       isAuthenticated: true,
       isInitializing: false,
@@ -34,7 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   clearSession: () =>
     set({
-      user: null,
+      userId: null,
       accessToken: null,
       isAuthenticated: false,
       isInitializing: false,
