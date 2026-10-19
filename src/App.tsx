@@ -1,16 +1,13 @@
 import { RouterProvider } from 'react-router-dom'
 import { router } from './app/router'
-import { useAuthStore } from './stores/auth.store'
-import { useEffect } from 'react'
+import SessionInitializer from './app/SessionInitializer'
 
 export default function App() {
-  const finishInitialization = useAuthStore(
-    (state) => state.finishInitialization,
+  return (
+    <>
+      <SessionInitializer />
+      <RouterProvider router={router} />
+    </>
   )
-
-  useEffect(() => {
-    finishInitialization()
-  }, [finishInitialization])
-
-  return <RouterProvider router={router} />
 }
+

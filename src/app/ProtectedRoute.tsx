@@ -1,4 +1,3 @@
-
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../stores/auth.store'
 
@@ -13,9 +12,9 @@ export default function ProtectedRoute() {
 
   if (isInitializing) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#111114] text-zinc-400">
-        Checking your session...
-      </main>
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-400">
+        Restoring your session...
+      </div>
     )
   }
 

@@ -11,60 +11,65 @@ import AddDevicePage from "../features/devices/pages/AddDevicePage";
 import CreateCirclePage from "../features/circles/pages/CreateCirclePage";
 import CircleDetailPage from "../features/circles/pages/CircleDetailPage";
 import DeviceDetailPage from "../features/devices/pages/DeviceDetailPage";
+import RegisterPage from "../features/auth/pages/RegisterPage";
 
 export const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    element: <ProtectedRoute />,
-    children: [
-      {
-        element: <AppShell />,
+    {
+        path: "/login",
+        element: <LoginPage />,
+    },
+    {
+        path: '/register',
+        element: <RegisterPage />
+    },
+    {
+        element: <ProtectedRoute />,
         children: [
-          {
-            path: "/",
-            element: <Navigate to="/devices" replace />,
-          },
-          {
-            path: "/devices",
-            element: <DevicesPage />,
-          },
-          {
-            path: "/devices/new",
-            element: <AddDevicePage />,
-          },
-          {
-            path: "/devices/:deviceId",
-            element: <DeviceDetailPage />,
-          },
-          {
-            path: "/circles",
-            element: <CirclesPage />,
-          },
-          {
-            path: "/circles/new",
-            element: <CreateCirclePage />,
-          },
-          {
-            path: "/circles/:circleId",
-            element: <CircleDetailPage />,
-          },
-          {
-            path: "/invitations",
-            element: <InvitationsPage />,
-          },
-          {
-            path: "/profile",
-            element: <ProfilePage />,
-          },
+            {
+                element: <AppShell />,
+                children: [
+                    {
+                        path: "/",
+                        element: <Navigate to="/devices" replace />,
+                    },
+                    {
+                        path: "/devices",
+                        element: <DevicesPage />,
+                    },
+                    {
+                        path: "/devices/new",
+                        element: <AddDevicePage />,
+                    },
+                    {
+                        path: "/devices/:deviceId",
+                        element: <DeviceDetailPage />,
+                    },
+                    {
+                        path: "/circles",
+                        element: <CirclesPage />,
+                    },
+                    {
+                        path: "/circles/new",
+                        element: <CreateCirclePage />,
+                    },
+                    {
+                        path: "/circles/:circleId",
+                        element: <CircleDetailPage />,
+                    },
+                    {
+                        path: "/invitations",
+                        element: <InvitationsPage />,
+                    },
+                    {
+                        path: "/profile",
+                        element: <ProfilePage />,
+                    },
+                ],
+            },
+            {
+                path: "*",
+                element: <Navigate to="/devices" replace />,
+            },
         ],
-      },
-      {
-        path: "*",
-        element: <Navigate to="/devices" replace />,
-      },
-    ],
-  },
+    },
 ]);

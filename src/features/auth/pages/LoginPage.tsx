@@ -1,45 +1,47 @@
-
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../../../stores/auth.store'
-import { login } from '../api/auth.api'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../stores/auth.store";
+import { login } from "../api/auth.api";
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const setSession = useAuthStore(
-    (state) => state.setSession,
-  )
+  const navigate = useNavigate();
+  const setSession = useAuthStore((state) => state.setSession);
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault()
-    setError('')
-    setLoading(true)
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const session = await login({ email, password })
+      const response = await login({
+        email,
+        password,
+      });
 
-      setSession(session.userId, session.accessToken)
-      navigate('/devices', { replace: true })
+      setSession(
+        {
+          id: response.userId,
+          email: response.email,
+        },
+        response.accessToken,
+      );
+
+      navigate("/devices", { replace: true });
     } catch {
-      setError('Unable to sign in. Check your credentials and try again.')
+      setError("Unable to sign in. Check your credentials and try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#111114] px-5 py-10 text-white">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
         <header className="space-y-2">
           <div className="mb-6 flex size-12 items-center justify-center rounded-2xl bg-orange-300 text-xl font-bold text-zinc-950">
             O
@@ -93,9 +95,18 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-xl bg-orange-300 px-4 py-3 font-semibold text-zinc-950 transition hover:bg-orange-200"
         >
-          {loading ? 'Signing in...' : 'Sign in'}
+          {loading ? "Signing in..." : "Sign in"}
         </button>
+        <p className="mt-6 text-center text-sm text-zinc-400">
+        Don't have an account?{" "}
+        <Link
+          to="/register"
+          className="font-medium text-amber-400 hover:text-amber-300"
+        >
+          Create an account
+        </Link>
+      </p>
       </form>
     </main>
-  )
+  );
 }

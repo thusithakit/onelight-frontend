@@ -1,116 +1,215 @@
+import { useState } from "react";
+import { LogOut, UserRound, Mail, Clock, CalendarDays } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import {
-  UserRound,
-  Mail,
-  ShieldCheck,
-  Smartphone,
-  LogOut,
-  ChevronRight,
-  LoaderCircle,
-} from 'lucide-react'
-import { useAuthStore } from '../../../stores/auth.store'
-import { api } from '../../../lib/axios'
+import { useMyProfile } from "../api/profile.queries";
+import { logout } from "../../auth/api/auth.api";
+import { useAuthStore } from "../../../stores/auth.store";
+import { Copy, Check } from "lucide-react";
+
+function formatDate(value: string) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime())
+    ? "—"
+    : date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+}
 
 export default function ProfilePage() {
-  const navigate = useNavigate()
-  const user = useAuthStore((state) => state.userId)
-  const clearSession = useAuthStore((state) => state.clearSession)
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [signingOut, setSigningOut] = useState(false)
-  const [error, setError] = useState('')
+  const { data: profile, isLoading, isError, refetch } = useMyProfile();
 
-  async function handleSignOut() {
-    setSigningOut(true)
-    setError('')
+  const clearSession = useAuthStore((state) => state.clearSession);
 
+  const authUser = useAuthStore((state) => state.user);
+
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopyUserId() {
     try {
-      // The backend logout endpoint may be unavailable until
-      // refresh-token handling is implemented.
-      await api.post('/auth/logout').catch(() => undefined)
-    } finally {
-      clearSession()
-      navigate('/login', { replace: true })
-      setSigningOut(false)
+      await navigator.clipboard.writeText(profile!.authUserId);
+      setCopied(true);
+
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch {
+      setLogoutError("Unable to copy your user ID. Please copy it manually.");
     }
   }
 
-  const displayName = user || 'OneLight user'
-  const email = 'No email available'
+  async function handleLogout() {
+    setLoggingOut(true);
+    setLogoutError("");
+
+    try {
+      await logout();
+    } catch {
+      // Clear the local session even if the logout request
+      // fails. The server-side refresh token may still exist
+      // until it expires or is revoked by the backend.
+      setLogoutError(
+        "Could not confirm server logout. Your local session was cleared.",
+      );
+    } finally {
+      clearSession();
+      queryClient.clear();
+      navigate("/login", { replace: true });
+      setLoggingOut(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10 text-zinc-400">
+        Loading your profile...
+      </main>
+    );
+  }
+
+  if (isError || !profile) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="text-2xl font-semibold text-white">
+          Profile unavailable
+        </h1>
+
+        <p className="mt-2 text-sm text-zinc-400">
+          We couldn't load your account details.
+        </p>
+
+        <button
+          onClick={() => void refetch()}
+          className="mt-5 rounded-xl bg-amber-400 px-4 py-2.5 font-semibold text-zinc-950 hover:bg-amber-300"
+        >
+          Try again
+        </button>
+      </main>
+    );
+  }
+
+  const displayName = profile.name || authUser?.name || "OneLight user";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-7">
-      <header>
-        <p className="text-sm font-medium text-amber-400">ACCOUNT</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Your profile
-        </h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Manage your account and app preferences.
-        </p>
-      </header>
+    <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:px-6 sm:pt-10">
+      <p className="text-sm text-amber-400">YOUR ACCOUNT</p>
 
-      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7">
+      <h1 className="mt-1 text-3xl font-semibold tracking-tight text-white">
+        Profile
+      </h1>
+
+      <section className="mt-8 rounded-2xl border border-white/10 bg-zinc-900/70 p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-amber-400/10 text-amber-300">
-            <UserRound size={30} />
-          </div>
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt={`${displayName}'s avatar`}
+              className="h-16 w-16 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-400/10 text-amber-400">
+              <UserRound size={30} />
+            </div>
+          )}
 
           <div className="min-w-0">
-            <h2 className="truncate text-xl font-semibold">{displayName}</h2>
-            <p className="mt-1 truncate text-sm text-zinc-400">{email}</p>
-            <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-emerald-400">
-              <ShieldCheck size={14} />
-              Signed in
-            </span>
+            <h2 className="truncate text-xl font-semibold text-white">
+              {displayName}
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-400">OneLight account</p>
           </div>
+        </div>
+
+        <div className="mt-7 space-y-5">
+          <div className="flex items-start gap-3">
+            <Mail className="mt-0.5 text-zinc-500" size={18} />
+
+            <div className="min-w-0">
+              <p className="text-xs text-zinc-500">Email</p>
+              <p className="mt-1 break-all text-sm text-zinc-200">
+                {authUser?.email || "Not available"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <Clock className="mt-0.5 text-zinc-500" size={18} />
+
+            <div>
+              <p className="text-xs text-zinc-500">Timezone</p>
+              <p className="mt-1 text-sm text-zinc-200">
+                {profile.timezone || "Not configured"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <CalendarDays className="mt-0.5 text-zinc-500" size={18} />
+
+            <div>
+              <p className="text-xs text-zinc-500">Member since</p>
+              <p className="mt-1 text-sm text-zinc-200">
+                {formatDate(profile.createdAt)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3 mt-4">
+          <UserRound className="mt-0.5 text-zinc-500" size={18} />
+
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-zinc-500">Your user ID</p>
+
+            <p className="mt-1 break-all font-mono text-sm text-zinc-200">
+              {profile.authUserId}
+            </p>
+
+            <p className="mt-1 text-xs text-zinc-500">
+              Share this ID with someone who wants to invite you to a Circle.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => void handleCopyUserId()}
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs font-medium text-zinc-300 transition hover:border-amber-400/40 hover:text-amber-300"
+            aria-label="Copy user ID"
+          >
+            {copied ? <Check size={15} /> : <Copy size={15} />}
+            {copied ? "Copied" : "Copy"}
+          </button>
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]">
-        <div className="border-b border-white/10 px-5 py-4">
-          <h2 className="font-semibold">Account information</h2>
-        </div>
-
-        <div className="flex items-center gap-4 px-5 py-4">
-          <Mail className="shrink-0 text-zinc-400" size={20} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm text-zinc-400">Email address</p>
-            <p className="mt-1 truncate text-sm">{email}</p>
-          </div>
-          <ChevronRight className="text-zinc-600" size={18} />
-        </div>
-
-        <div className="flex items-center gap-4 border-t border-white/10 px-5 py-4">
-          <Smartphone className="shrink-0 text-zinc-400" size={20} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm text-zinc-400">Application</p>
-            <p className="mt-1 text-sm">OneLight Web · PWA</p>
-          </div>
-          <span className="text-xs text-zinc-500">Installed-ready</span>
-        </div>
-      </section>
-
-      {error && (
-        <p role="alert" className="text-sm text-red-400">
-          {error}
+      {logoutError && (
+        <p role="status" className="mt-4 text-sm text-amber-300">
+          {logoutError}
         </p>
       )}
 
       <button
         type="button"
-        onClick={handleSignOut}
-        disabled={signingOut}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-400/[0.06] px-4 py-3.5 font-medium text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-60"
+        onClick={() => void handleLogout()}
+        disabled={loggingOut}
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-red-400/20 bg-red-400/5 px-4 py-3 font-medium text-red-300 transition hover:bg-red-400/10 disabled:opacity-50"
       >
-        {signingOut ? (
-          <LoaderCircle className="animate-spin" size={18} />
-        ) : (
-          <LogOut size={18} />
-        )}
-        {signingOut ? 'Signing out…' : 'Sign out'}
+        <LogOut size={18} />
+        {loggingOut ? "Signing out..." : "Sign out"}
       </button>
-    </div>
-  )
+    </main>
+  );
 }
