@@ -1,23 +1,64 @@
+export type CircleRole = 'OWNER' | 'MEMBER'
 
 export interface Circle {
+  circleId: string
+  name: string
+  ownerId: string
+  role: CircleRole
+  canSendMessage: boolean
+  joinedAt: string
+}
+
+export interface CreateCircleRequest {
+  name: string
+}
+
+export interface CreatedCircle {
   id: string
   name: string
-  description?: string
-  memberCount: number
-  deviceCount: number
-  role: 'OWNER' | 'MEMBER'
-  createdAt?: string
+  ownerId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface CircleMember {
-  id: string
-  name: string
-  email: string
-  role: 'OWNER' | 'MEMBER'
+  userId: string
+  role: CircleRole
+  canSendMessages: boolean
+  joinedAt: string
 }
 
 export interface CircleDevice {
-  id: string
+  deviceId: string
+  addedAt: string
+}
+
+export interface SharedDevice {
+  deviceId: string
   name: string
   status: 'ONLINE' | 'OFFLINE'
+  firmwareVersion: string | null
+  lastSeenAt: string | null
+  circleId: string
+  circleName: string
+  canSendMessages: boolean
+}
+
+export interface CircleInvitation {
+  id: string
+  circleId: string
+  circleName: string
+  invitedUserId: string
+  invitedBy: string
+  status: string
+  expiresAt: string
+  createdAt: string
+}
+
+export interface InviteMemberRequest {
+  userId: string
+}
+
+export interface UpdateMemberPermissionsRequest {
+  canSendMessages: boolean
 }

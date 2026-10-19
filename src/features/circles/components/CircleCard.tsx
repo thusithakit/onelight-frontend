@@ -1,6 +1,5 @@
-
 import { Link } from 'react-router-dom'
-import { ChevronRight, UsersRound, Lightbulb } from 'lucide-react'
+import { UsersRound, ChevronRight, ShieldCheck, MessageCircle } from 'lucide-react'
 import type { Circle } from '../types'
 
 interface CircleCardProps {
@@ -10,38 +9,39 @@ interface CircleCardProps {
 export default function CircleCard({ circle }: CircleCardProps) {
   return (
     <Link
-      to={`/circles/${circle.id}`}
-      className="group flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-[#19191e] p-4 transition hover:border-white/[0.14] hover:bg-[#1e1e24] active:scale-[0.99]"
+      to={`/circles/${circle.circleId}`}
+      className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-amber-300/25 hover:bg-white/[0.05]"
     >
-      <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300">
-        <UsersRound size={26} strokeWidth={1.7} />
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-300/10 text-amber-300">
+        <UsersRound size={23} />
       </div>
 
       <div className="min-w-0 flex-1">
-        <h2 className="truncate font-semibold text-zinc-100">
-          {circle.name}
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="truncate font-semibold">{circle.name}</h2>
+          {circle.role === 'OWNER' && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-300/10 px-2 py-0.5 text-xs text-amber-200">
+              <ShieldCheck size={12} />
+              Owner
+            </span>
+          )}
+        </div>
 
-        <p className="mt-1 truncate text-sm text-zinc-500">
-          {circle.description || 'Your shared OneLight space'}
-        </p>
-
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-400">
           <span className="inline-flex items-center gap-1.5">
             <UsersRound size={13} />
-            {circle.memberCount} members
+            {circle.role === 'OWNER' ? 'Your circle' : 'Member'}
           </span>
-
           <span className="inline-flex items-center gap-1.5">
-            <Lightbulb size={13} />
-            {circle.deviceCount} devices
+            <MessageCircle size={13} />
+            {circle.canSendMessage ? 'Can send messages' : 'View only'}
           </span>
         </div>
       </div>
 
       <ChevronRight
-        size={20}
-        className="shrink-0 text-zinc-600 transition group-hover:text-zinc-300"
+        size={19}
+        className="shrink-0 text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-amber-300"
       />
     </Link>
   )

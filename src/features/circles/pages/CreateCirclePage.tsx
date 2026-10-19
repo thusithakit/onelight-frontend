@@ -1,31 +1,32 @@
-
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, UsersRound } from 'lucide-react'
+import { ArrowLeft, LoaderCircle, UsersRound } from 'lucide-react'
+import { useCreateCircle } from '../api/circles.queries'
 
 export default function CreateCirclePage() {
   const navigate = useNavigate()
-
+  const createCircleMutation = useCreateCircle()
   const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [error, setError] = useState('')
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setError('')
 
-    if (!name.trim()) {
-      setError('Please enter a circle name.')
-      return
+    const trimmedName = name.trim()
+    if (!trimmedName) return
+
+    try {
+      const circle = await createCircleMutation.mutateAsync({
+        name: trimmedName,
+      })
+
+      navigate(`/circles/${circle.id}`, { replace: true })
+    } catch {
+      // Display the mutation error in the form.
     }
-
-    // TODO: Replace with the create-circle API mutation.
-    // Mock mode: return to the circles list.
-    navigate('/circles')
   }
 
   return (
-    <section className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-xl space-y-7">
       <Link
         to="/circles"
         className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white"
@@ -35,70 +36,56 @@ export default function CreateCirclePage() {
       </Link>
 
       <header>
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300">
-          <UsersRound size={25} />
-        </div>
-
-        <h1 className="mt-5 text-3xl font-semibold tracking-tight">
-          Create a circle
+        <p className="text-sm font-medium text-amber-400">NEW CIRCLE</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          Bring people together
         </h1>
-
         <p className="mt-2 text-sm leading-6 text-zinc-400">
-          Create a shared space for people and their OneLight devices.
+          Create a circle to share your OneLight experience with others.
         </p>
       </header>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-2xl border border-white/[0.07] bg-[#19191e] p-5"
+        className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7"
       >
-        <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-300">
-            Circle name
-          </span>
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-300/10 text-amber-300">
+          <UsersRound size={23} />
+        </div>
 
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            maxLength={60}
-            required
-            placeholder="e.g. Home"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-orange-300"
-          />
-
-          <span className="block text-right text-xs text-zinc-500">
-            {name.length}/60
-          </span>
+        <label htmlFor="circle-name" className="mt-6 block text-sm font-medium">
+          Circle name
         </label>
+        <input
+          id="circle-name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
+          minLength={2}
+          maxLength={80}
+          placeholder="e.g. Family, Close Friends"
+          className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm outline-none placeholder:text-zinc-600 focus:border-amber-300/50 focus:ring-2 focus:ring-amber-300/10"
+        />
 
-        <label className="block space-y-2">
-          <span className="text-sm font-medium text-zinc-300">
-            Description <span className="text-zinc-500">(optional)</span>
-          </span>
-
-          <textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            maxLength={200}
-            rows={3}
-            placeholder="What is this circle for?"
-            className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 outline-none focus:border-orange-300"
-          />
-        </label>
-
-        {error && (
-          <p role="alert" className="text-sm text-red-400">
-            {error}
+        {createCircleMutation.isError && (
+          <p role="alert" className="mt-3 break-words text-sm text-red-400">
+            {createCircleMutation.error instanceof Error
+              ? createCircleMutation.error.message
+              : 'Could not create the circle. Please try again.'}
           </p>
         )}
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-orange-300 px-4 py-3 font-semibold text-zinc-950 transition hover:bg-orange-200"
+          disabled={!name.trim() || createCircleMutation.isPending}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-300 px-4 py-3 font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Create circle
+          {createCircleMutation.isPending && (
+            <LoaderCircle size={18} className="animate-spin" />
+          )}
+          {createCircleMutation.isPending ? 'Creating…' : 'Create circle'}
         </button>
       </form>
-    </section>
+    </div>
   )
 }
