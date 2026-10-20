@@ -7,3 +7,9 @@ export interface UserProfile {
   createdAt: string
   updatedAt: string
 }
+
+export interface UpdateProfileRequest {
+  name: string
+  avatarUrl: string | null
+  timezone: string
+}

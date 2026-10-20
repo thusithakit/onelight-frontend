@@ -1,6 +1,7 @@
 
 import { Link, Outlet } from 'react-router-dom'
 import BottomNavigation from './BottomNavigation'
+import OneLightLogo from '../../../public/one-light.svg'
 
 export default function AppShell() {
   return (
@@ -12,9 +13,7 @@ export default function AppShell() {
             className="flex items-center gap-3"
             aria-label="OneLight home"
           >
-            <div className="flex size-9 items-center justify-center rounded-xl bg-orange-300 font-bold text-zinc-950">
-              O
-            </div>
+            <img src={OneLightLogo} width={30} height={30}/>
 
             <span className="text-lg font-semibold tracking-tight">
               OneLight

@@ -1,14 +1,15 @@
+
 import {
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
+
 import {
+  getInvitations,
   acceptInvitation,
   declineInvitation,
-  getInvitations,
 } from './invitations.api'
-import { circleKeys } from '../../circles/api/circles.queries'
 
 export const invitationKeys = {
   all: ['invitations'] as const,
@@ -26,11 +27,13 @@ export function useAcceptInvitation() {
 
   return useMutation({
     mutationFn: acceptInvitation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: invitationKeys.all })
-      queryClient.invalidateQueries({ queryKey: circleKeys.all })
-      queryClient.invalidateQueries({
-        queryKey: circleKeys.sharedDevices,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: invitationKeys.all,
+      })
+
+      await queryClient.invalidateQueries({
+        queryKey: ['circles'],
       })
     },
   })
@@ -41,8 +44,10 @@ export function useDeclineInvitation() {
 
   return useMutation({
     mutationFn: declineInvitation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: invitationKeys.all })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: invitationKeys.all,
+      })
     },
   })
 }

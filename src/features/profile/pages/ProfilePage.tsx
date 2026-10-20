@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { LogOut, UserRound, Mail, Clock, CalendarDays } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useMyProfile } from "../api/profile.queries";
 import { logout } from "../../auth/api/auth.api";
 import { useAuthStore } from "../../../stores/auth.store";
-import { Copy, Check } from "lucide-react";
+import CopyButton from "../../../components/ui/CopyButton";
 
 function formatDate(value: string) {
   if (!value) return "—";
@@ -34,21 +34,6 @@ export default function ProfilePage() {
 
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
-
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopyUserId() {
-    try {
-      await navigator.clipboard.writeText(profile!.authUserId);
-      setCopied(true);
-
-      window.setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch {
-      setLogoutError("Unable to copy your user ID. Please copy it manually.");
-    }
-  }
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -174,25 +159,20 @@ export default function ProfilePage() {
           <div className="min-w-0 flex-1">
             <p className="text-xs text-zinc-500">Your user ID</p>
 
-            <p className="mt-1 break-all font-mono text-sm text-zinc-200">
-              {profile.authUserId}
-            </p>
-
+            <div className="grid gap-2 grid-cols-2">
+              <p className="mt-1 break-all font-mono text-sm text-zinc-200">
+                {profile.authUserId}
+              </p>
+              <CopyButton value={profile.authUserId} label="Copy ID" />
+            </div>
             <p className="mt-1 text-xs text-zinc-500">
               Share this ID with someone who wants to invite you to a Circle.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => void handleCopyUserId()}
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-xs font-medium text-zinc-300 transition hover:border-amber-400/40 hover:text-amber-300"
-            aria-label="Copy user ID"
-          >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? "Copied" : "Copy"}
-          </button>
         </div>
+        <Link to={"/profile/edit"} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-300 px-4 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto mt-5">
+          Edit Profile
+        </Link>
       </section>
 
       {logoutError && (

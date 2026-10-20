@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 import {
   Plus,
   UsersRound,
   LoaderCircle,
   RefreshCw,
-} from 'lucide-react'
-import CircleCard from '../components/CircleCard'
-import { useCircles } from '../api/circles.queries'
+  MessageSquare,
+} from "lucide-react";
+import CircleCard from "../components/CircleCard";
+import { useCircles } from "../api/circles.queries";
 
 export default function CirclesPage() {
   const {
@@ -15,7 +16,7 @@ export default function CirclesPage() {
     isError,
     error,
     refetch,
-  } = useCircles()
+  } = useCircles();
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
@@ -40,6 +41,14 @@ export default function CirclesPage() {
         </Link>
       </header>
 
+      <Link
+        to="/messages"
+        className="inline-flex items-center gap-2 rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-medium text-amber-300 transition hover:bg-amber-400/15"
+      >
+        <MessageSquare size={17} />
+        Message a shared device
+      </Link>
+
       {isLoading && (
         <div className="flex items-center justify-center gap-3 py-16 text-sm text-zinc-400">
           <LoaderCircle size={20} className="animate-spin" />
@@ -49,9 +58,13 @@ export default function CirclesPage() {
 
       {isError && (
         <div className="rounded-2xl border border-red-400/20 bg-red-400/[0.05] p-5">
-          <p className="font-medium text-red-300">Couldn't load your circles.</p>
+          <p className="font-medium text-red-300">
+            Couldn't load your circles.
+          </p>
           <p className="mt-2 break-words text-sm text-zinc-400">
-            {error instanceof Error ? error.message : 'An unexpected error occurred.'}
+            {error instanceof Error
+              ? error.message
+              : "An unexpected error occurred."}
           </p>
           <button
             type="button"
@@ -69,7 +82,9 @@ export default function CirclesPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-300/10 text-amber-300">
             <UsersRound size={27} />
           </div>
-          <h2 className="mt-5 text-lg font-semibold">Create your first circle</h2>
+          <h2 className="mt-5 text-lg font-semibold">
+            Create your first circle
+          </h2>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-zinc-400">
             Circles let you share compatible devices and send messages with
             members you invite.
@@ -95,5 +110,5 @@ export default function CirclesPage() {
         </section>
       )}
     </div>
-  )
+  );
 }

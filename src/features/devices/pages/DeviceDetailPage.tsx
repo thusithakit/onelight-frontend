@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useDevice, useLightSettings, useUpdateLightSettings } from '../api/devices.queries'
 import { useDeviceMessages, useSendDeviceMessage } from '../../messages/api/messages.queries'
+import DeviceMessageHistory from '../../messages/components/DeviceMessageHistory'
 
 function formatDate(value: string | null | undefined) {
   if (!value) return 'Not available'
@@ -384,58 +385,7 @@ export default function DeviceDetailPage() {
                 )}
               </form>
 
-              <div className="mt-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold">Recent messages</h3>
-                  <button
-                    type="button"
-                    onClick={() => void messagesQuery.refetch()}
-                    className="text-xs text-zinc-400 hover:text-white"
-                  >
-                    Refresh
-                  </button>
-                </div>
-
-                {messagesQuery.isLoading ? (
-                  <p className="mt-4 text-sm text-zinc-500">
-                    Loading messages…
-                  </p>
-                ) : messagesQuery.isError ? (
-                  <p className="mt-4 text-sm text-red-400">
-                    Could not load message history.
-                  </p>
-                ) : messages.length === 0 ? (
-                  <p className="mt-4 rounded-2xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-zinc-500">
-                    No messages yet. Send your first one above.
-                  </p>
-                ) : (
-                  <div className="mt-4 space-y-3">
-                    {messages.map((message) => (
-                      <article
-                        key={message.id}
-                        className="rounded-2xl border border-white/10 bg-black/15 p-4"
-                      >
-                        <p className="whitespace-pre-wrap break-words text-sm leading-6 text-zinc-200">
-                          {message.content}
-                        </p>
-                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-xs text-zinc-500">
-                            {formatDate(message.createdAt)}
-                          </span>
-                          <span className="text-xs text-zinc-400">
-                            {message.status}
-                          </span>
-                        </div>
-                        {message.deliveredAt && (
-                          <p className="mt-1 text-xs text-emerald-400">
-                            Delivered {formatDate(message.deliveredAt)}
-                          </p>
-                        )}
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <DeviceMessageHistory deviceId={deviceId} />
             </section>
           </div>
         </>

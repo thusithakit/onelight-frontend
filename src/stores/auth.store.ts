@@ -18,6 +18,8 @@ interface AuthState {
     accessToken: string,
   ) => void
 
+  setUser: ( user: AuthUser) => void
+
   setAccessToken: (accessToken: string) => void
   clearSession: () => void
   finishInitialization: () => void
@@ -41,6 +43,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAccessToken: (accessToken) =>
     set({ accessToken }),
+
+  setUser: (user: AuthUser) => 
+    set({user}),
 
   clearSession: () =>
     set({

@@ -31,6 +31,7 @@ export default function CircleDetailPage() {
   const [notice, setNotice] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
+
   const circlesQuery = useCircles()
   const membersQuery = useCircleMembers(circleId)
   const devicesQuery = useCircleDevices(circleId)
